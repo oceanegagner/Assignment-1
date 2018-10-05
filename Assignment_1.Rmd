@@ -8,6 +8,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
 ```
 
 ```{r}
@@ -96,14 +97,226 @@ print(my_mean(warpbreaks$breaks))
 
 
 
+##Exercice 4
 
 
 
-#Exercice 4
+```{r}
+#Sub-exercise 4-a
+
+# Return a violin plot.
+#
+# ARGUMENTS:
+# d: a data frame or tibble
+# var: the name of a column of d containing the dependent variable, provided as a
+# string
+# grouping_var: the name of a column of d containing a grouping variable,
+# provided as a string
+#
+# RETURN VALUE:
+# A ggplot plot object containing a violin plot, grouped by the values
+# of the grouping variable.
+#
+grouped_violin_plot <- function(d, var, grouping_var) {
+  # Create the base ggplot object
+  p <- ggplot2::ggplot(d, ggplot2::aes_string(y=var,
+                                              x=grouping_var,
+                                              fill=grouping_var)) + geom_violin() + scale_fill_brewer(palette="RdBu") + labs(title="Iris data")
+  
+  return(p)
+}
+
+print(grouped_violin_plot(iris, "Sepal.Length", "Species"))
+
+```
+
+
+##Exercice 5
+
+```{r}
+#Sub-exercise 5-a
+
+# Difference in the medians between two groups.
+#
+# ARGUMENTS:
+# d: a data frame or tibble
+# var: the name of a column of d containing the dependent variable, provided as a string
+# grouping_var: the name of a column of d containing a grouping variable, provided as a string
+# group1: the value of grouping_var that corresponds to the first group
+# group2: the value of grouping_var that corresponds to the second group
+#
+# RETURN VALUE:
+# The median value of var for the first group, minus the median value of var for the second
+# group.
+#
+difference_in_medians <- function(d, var, grouping_var, group1, group2) {
+  result <- NULL
+  d_1 <- dplyr::filter(d, get(grouping_var) == group1)
+  d_2 <- dplyr::filter(d, get(grouping_var) == group2)
+  
+  return(median(d_1[[var]]) - median(d_2[[var]]))
+}
+
+```
+
+```{r}
+difference_in_medians(iris, "Sepal.Width", "Species", "versicolor", "virginica")
+difference_in_medians(iris, "Sepal.Width", "Species", "virginica", "virginica")
+```
+
+```{r}
+#Sub-exercise 5-b
+# Randomize the order of a column.
+#
+# ARGUMENTS:
+# d: a data frame or tibble
+# var: the name of a column of d containing the variable to randomize,
+# provided as a string
+#
+# RETURN VALUE:
+# A data frame or tibble exactly the same as d, except with the order of
+# var permuted randomly.
+#
+randomize <- function(d, var) {
+d[[var]] <- sample(d[[var]], length(d[[var]]))
+return(d)
+}
+
+
+```
+
+```{r}
+iris$Sepal.Width[1:10]
+if(!exists(".Random.seed")) set.seed(NULL)
+previous_seed <- .Random.seed
+set.seed(1)
+randomize(iris, "Sepal.Width")$Sepal.Width[1:10]
+randomize(iris, "Species")$Species[1:10]
+randomize(iris, "Species")$Sepal.Width[1:10]
+set.seed(previous_seed)
+```
+
+
+```{r}
+#Sub-exercise 5-c
+# Perform a permutation test for two groups.
+#
+# ARGUMENTS:
+# d: a data frame or tibble
+# var: the name of the column in d on which the test statistic will be calculated,
+# provided as a string
+# grouping_var: the name of the column in d which gives the grouping
+# group1: the value of grouping_var corresponding to the first group
+# group2: the value of grouping_var corresponding to the second group
+# statistic: a function yielding a test statistic, which takes as input
+# a data frame, the name of a variable on which to calculate the
+# test statistic, the name of a grouping variable, the value of
+# the grouping variable corresponding to the first group, and
+# the value of the grouping variable corresponding to the second
+# group
+# n_samples: the number of permutation samples to draw (default: 9999)
+#
+# RETURN VALUE:
+#
+# A list containing two elements:
+#
+# - observed: the value of statistic() in d
+# - permuted: a vector containing the values of statistic() under n_samples
+# permutations
+#
+permutation_twogroups <- function(d, var, grouping_var, group1, group2, statistic,
+n_samples=9999) {
+  observed_statistic <- statistic(d, var, grouping_var, group1, group2)
+  permutation_statistics <- rep(0, n_samples)
+  for (i in 1:n_samples) {
+  
+    random <- randomize(d, grouping_var)
+    permutation_statistics[i] <- statistic(random,var,grouping_var, group1, group2)
+      
+    }
+  result <- list(observed=observed_statistic,
+  permuted=permutation_statistics)
+  return(result)
+}
+```
+
+```{r}
+if(!exists(".Random.seed")) set.seed(NULL)
+previous_seed <- .Random.seed
+set.seed(1)
+ptest_1 <- permutation_twogroups(iris, "Sepal.Width", "Species", "versicolor",
+"virginica", difference_in_medians, n_samples=10)
+ptest_2 <- permutation_twogroups(iris, "Sepal.Width", "Species", "versicolor",
+"virginica", difference_in_medians, n_samples=10)
+ptest_3 <- permutation_twogroups(randomize(iris, "Sepal.Width"), "Sepal.Width",
+"Species", "versicolor", "virginica",
+difference_in_medians, n_samples=10)
+set.seed(previous_seed)
+print(ptest_1)
+print(ptest_2)
+print(ptest_3)
+print(ptest_3$observed)
+print(ptest_3[["observed"]])
+```
+
+#Sub-exercise 5-d
+
+Permuter les variables var et grouping_var dans la fonction permutation_twogroups est en effet pertinent pour les tests car, au lieu de considérer les valeurs comprises dans var, la fonction va considérer les valeurs de grouping_var. On peut voir ceci grace aux résultats ainsi obtenus, les valeurs permutées étant différentes de celles obtenues avec var (et ce même en gardant la seed=1) :
+
+$observed
+[1] -0.2
+
+$permuted
+ [1] 0.00 0.10 0.00 0.00 0.00 0.05 0.00 0.00 0.00 0.05
+
+$observed
+[1] -0.2
+
+$permuted
+ [1]  0.10  0.00  0.00  0.00  0.00  0.00 -0.05 -0.10  0.05  0.10
+
+$observed
+[1] 0
+
+$permuted
+ [1]  0.10  0.00  0.00 -0.10 -0.10  0.10  0.00  0.00  0.10  0.05
+
+[1] 0
+[1] 0
+
+
+```{r, cache=T}
+#Sub-exercise 5-e
+
+if(!exists(".Random.seed")) set.seed(NULL)
+previous_seed <- .Random.seed
+set.seed(1)
+ptest <- permutation_twogroups(iris, "Sepal.Width", "Species", "versicolor",
+"virginica", difference_in_medians)
+set.seed(previous_seed)
+
+
+```
+
+```{r}
+ptest_d <- tibble::as_tibble(ptest["permuted"])
+observed_value <- ptest["observed"]
+
+p <- ggplot(ptest_d, aes(x=permuted)) + geom_histogram(binwidth=.025, color = "chartreuse4", fill = "deepskyblue3") + labs(title="Histogram of observed value and permuted values", x="permuted values", y="count") + geom_vline(aes(xintercept=unlist(observed_value)))
+
+print(p)
+
+
+```
+
+On peut voir sur ce graphe que la valeur de la médiane est à -0.2, ce qui nous indique des valeurs plutôt négatives. On peut tout de même conclure que les données se répartissent symétriquement d'un coté et de l'autre de la valeur 0.0, tout en étant majoritairement regroupées sur le 0.0, ce qui indique, comme nous avons pu le voir, une prépondérance de cette valeur dans la largeur des sépales.
 
 
 
 
 
 
-#Exercice 5
+
+
+
+
