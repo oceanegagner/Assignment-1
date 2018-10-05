@@ -3,28 +3,107 @@ title: "Assignment 1"
 author: "Océane Gagner"
 date: "30 septembre 2018"
 output: html_document
+
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+source('~/Assignment-1/functions.R')
 ```
 
-## Including Plots
+##Exercice 1
 
-You can also embed plots, for example:
+Github est un site qui permet d'héberger gratuitement des projets de type informatique grâce à Git.
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
+
+
+##Exercice 2
+
+```{r } 
+possible_outcomes <- c(0, 1, 2, 3, 4, 5)
+outcome_probabilities <- c(0.1, 0.5, 0.2, 0.1, 0.05, 0.05) 
+#Cette ligne es une assignation de variable. En effet, outcome_probabilities porte un très bon nom de variable explicite, et est suivi d'une flèche inversée qui pointe vers la gauche <-, ce qui est significatif d'une assignation de variable en R. De plus, on créé pour cette variable un vecteur, représenté par c(), comprenant un ensemble de ce qu'on peut supposer etre des probabilités, comme nous l'indique à juste titre le nom de la variable.
+
+n_data_points <- 400 
+#On a ici une nouvelle assignation de variable. De même qu'au-dessus, on déduit cela grave à la flèche inversée et au nom de la variable. Cette fois, au lieu d'y assigner un vecteur, on lui donne un integer d'une valeur de 400.
+
+set.seed(1)
+#Il s'agit ici d'une fonction qui génère un vecteur de nombre aléatoire de taille 1 par défaut. Cette fonction se présente sous la forme set.seed(n), où le n correspond à un "point d'ancrage", c'est à dire une base pour la génration de ce nombre aléatoire. Ce n permet donc de regénérer un même nombre afin de vérifier des hypothèses tout en pouvant au besoin modifier le n, et donc la valeur de la graine.
+
+fake_data_points <- sample(possible_outcomes,
+n_data_points,
+replace=T,
+prob=outcome_probabilities)
+#La variable fake_data_points se voit assigner un objet sample qui permet d'effectuer un turage aléatoire de données. Ces données sont contenues dans le vecteur possible_outcomes. Le nombre de tirages est défini par la variable n_data_points, et l'argument replace détermine si oui ou non on effectuera un tirage avec remise. En l'occurence, replace étant égal à T (true), il y aura bien remise. la dernière variable, prob, correspond à la probabilité qu'a chaque élément du vecteur possible_outcome d'être tiré. Il faut donc que la taille de prob soit égale à celle du vecteur contenant les sorties possibles, au risque de renvoyer une erreur le cas échéant.
+
+set.seed(NULL)
+fake_data_set <- tibble::data_frame(`Fake measurement`=fake_data_points)
+# On a de nouveau affaire à une assignation de variable, ce que nous indique la flèche <-. La variable fake_data_set se voit attribuer la valeur de la fonction data_frame de la librairie tibble (les :: nous indiquent que la partie gauche est une librairie, tandis que la partie droite est une fonction issue de cette même librairie). Cette librairie permet de stocker les données dans un tableau de manière efficace et lisible ; la colonne de ce tableau est désignée par "Fake measurement" comprenant les données de la variable fake_data_points définie plus haut.
+
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r include=FALSE}
+ggplot2::ggplot(fake_data_set, ggplot2::aes(x=`Fake measurement`)) +
+ggplot2::geom_histogram(bins=5, colour="black", fill="lightgrey")
+```
+
+
+
+
+
+##Exercice 3
+
+#Sub-exercise 3-a
+
+```{r}
+print(sum_column(iris, "Sepal.Length"))
+print(sum_column(iris, "Species"))
+print(sum_column(warpbreaks, "breaks"))
+
+```
+
+#Sub-exercise 3-b
+
+```{r}
+print(my_sum(iris$Sepal.Length))
+print(my_sum(iris$Species))
+print(my_sum(warpbreaks$breaks))
+```
+
+#Sub-exercise 3-c
+
+```{r}
+print(sum_divided_by(iris$Sepal.Length, 12))
+print(sum_divided_by(iris$Species, 22))
+print(sum_divided_by(iris$Sepal.Length, "Not numeric"))
+print(sum_divided_by(warpbreaks$breaks, -12))
+
+```
+
+#Sub-exercise 3-d
+
+```{r}
+print(my_mean(iris$Sepal.Length))
+print(my_mean(iris$Species))
+print(my_mean(warpbreaks$breaks))
+```
+
+
+
+
+
+
+
+#Exercice 4
+
+
+
+
+
+
+#Exercice 5
