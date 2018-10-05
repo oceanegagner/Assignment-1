@@ -26,13 +26,12 @@ sum_column <- function(d, var) {
     # YOUR CODE HERE: if x contains numbers, set the variable
     # result to be the sum of the values in x
     if (is.numeric(x)) {
-      result <- result + x
+      result <- sum(x)
     }
     #
     # You will need to do a bit of research in order to figure out how
     # to test whether a vector contains numbers.
   }
-  # YOUR CODE HERE: return the result
   return(result)
 }
 
@@ -47,9 +46,9 @@ sum_column <- function(d, var) {
 #all values; otherwise, returns NULL
 
 my_sum <- function(x){
-  result <- NULL
-  if(is.numeric(x)){
-    result <- sum(x)
+  result <- NULL #Instancie la variable result à NULL
+  if(is.numeric(x)){ #Si les éléments de x sont de type int
+    result <- sum(x) #Ajoute au résultat les éléments de x
   }
   return(result)
 }
@@ -59,9 +58,9 @@ my_sum <- function(x){
 #Sub-exercise 3-c
 
 sum_divided_by <- function(x, k){
-  result <- NULL
-  if(is.numeric(x) & is.numeric(k)){
-    result <- result + (x/k)
+  result <- NULL #Instancie la variable result à NULL
+  if(is.numeric(x) & is.numeric(k)){#Si les éléments de x sont numériques et que k est un int
+    result <- sum(x/k) #on ajoute à result les éléments de x divisés par k
   }
   return(result)
 }
@@ -70,11 +69,10 @@ sum_divided_by <- function(x, k){
 #Sub-exercise 3-d
 
 my_mean <- function(x){
-  k <- length(x)
-  result <- NULL
-  result <- sum_divided_by(x, k)
+  k <- length(x) #k est la taille du vecteur x
+  result <- NULL #Instancie result à NULL
+  result <- sum_divided_by(x, k) #Applique la fonction sum_divided_by avec x le vecteur et k la taille de ce vecteur
 }
-
 
 
 
